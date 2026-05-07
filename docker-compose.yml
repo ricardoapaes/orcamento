@@ -9,12 +9,21 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./data/:/var/lib/mysql
+      - ./sql/:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      - PMA_HOSTS=mysql
+      - UPLOAD_LIMIT=300M
+    ports:
+      - ${PMA_PORT:-8521}:80
 
   php:
     build: ./backend
@@ -37,6 +46,3 @@ services:
       - /app/node_modules
     depends_on:
       - php
-
-volumes:
-  mysql_data:
